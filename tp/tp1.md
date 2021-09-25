@@ -216,7 +216,13 @@ Dans le fichier `/etc/fstab` on ajoute cette ligne `/dev/data/lv_data1 /mnt/part
 
 ### 1. Interaction avec un service existant
 
-
+```
+[hugoj@node1 ~]$ systemctl is-active firewalld
+active
+[hugoj@node1 ~]$ systemctl is-enabled firewalld
+enabled
+```
+On voit que l'unité est démarée et qu'elle est activée.
 
 ### 2. Création de service
 

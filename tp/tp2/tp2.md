@@ -289,3 +289,4 @@ Je modifie mon fichier hosts qui se trouve dans `C:\Windows\System32\drivers\etc
 |-----------------|---------------|-------------------------|-------------|---------------|
 | `web.tp2.linux` | `10.102.1.11` | Serveur Web             | 80          | toutes        |
 | `db.tp2.linux`  | `10.102.1.12` | Serveur Base de Données | 3306        | 10.102.1.11   |
+

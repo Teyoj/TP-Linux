@@ -106,3 +106,85 @@ tmpfs                                        81M     0   81M   0% /run/user/1000
 backup.tp2.linux:/srv/backup/web.tp2.linux  6.2G  2.1G  4.1G  34% /srv/backup
 ```
 
+## III. Reverse Proxy
+
+### Setup
+
+J'installe `epel-release` et `nginx` sur ma machine `front.tp2.linux`.
+
+Je lance le service `nginx` avec la commande `sudo systemctl start nginx.service` et je fais en sorte qu'il démarre quand le système boot avec la commande `sudo systemctl enable nginx.service`.
+
+Avec la commande `sudo ss -lantp` je repère que le port utilisé par `nginx` est le port 80, je l'ouvre donc dans mon firewall.
+```
+[hugoj@front ~]$ sudo firewall-cmd --add-port=80/tcp --permanent
+success
+```
+
+Depuis un powershell sur mon PC je fais un curl pour vérifier que je peux joindre NGINX.
+```
+PS C:\Users\hugoj> curl 10.102.1.14:80                                                                                  
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+                    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+                      <head>
+                        <title>Test Page for the Nginx...
+```
+
+
+**Explorer la conf par défaut de NGINX**
+
+Je regarde dans la conf de NGINX pour repérer le user utilisé.
+```
+[hugoj@front ~]$ sudo cat /etc/nginx/nginx.conf
+# For more information on configuration, see:
+#   * Official English Documentation: http://nginx.org/en/docs/
+#   * Official Russian Documentation: http://nginx.org/ru/docs/
+
+user nginx;
+```
+
+On voit que le user utilisé est nginx.
+
+je repère le bloc `server {}` dans le fichier de conf principal.
+```
+ server {
+        listen       80 default_server;
+        listen       [::]:80 default_server;
+        server_name  _;
+        root         /usr/share/nginx/html;
+
+        # Load configuration files for the default server block.
+        include /etc/nginx/default.d/*.conf;
+
+        location / {
+        }
+
+        error_page 404 /404.html;
+            location = /40x.html {
+        }
+
+        error_page 500 502 503 504 /50x.html;
+            location = /50x.html {
+        }
+```
+
+Je repère les inclusions des autres fichiers de conf.
+```
+[hugoj@front ~]$ sudo cat /etc/nginx/nginx.conf | grep include
+include /usr/share/nginx/modules/*.conf;
+    include             /etc/nginx/mime.types;
+        include /etc/nginx/default.d/*.conf;
+```
+
+**Modifier la conf de NGINX**
+
+Je supprime le bloc serveur dans `/etc/nginx/nginx.conf` et je crée le fichier `/etc/nginx/conf.d/web.tp2.linux.conf` avec le contenu donné dans le tp.
+
+
+## IV. Firewalling
+
+### Mise en place
+
